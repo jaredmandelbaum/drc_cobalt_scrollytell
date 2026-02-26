@@ -200,7 +200,7 @@
       }
 
       .map-copy-left {
-        left: 21%;
+        left: 14%;
         top: 66%;
         max-width: min(500px, 30vw);
         text-align: center;
@@ -354,32 +354,36 @@
       const tenkeFungurume = [-10.6383278, 26.2913167];
       const mineBounds = L.latLngBounds([kisanfu, tenkeFungurume]);
       let mapStage = -1;
-      let labelsVisible = false;
+      let mineTargetsVisible = false;
 
-      const kisanfuMarker = L.marker(kisanfu).addTo(map).bindTooltip("Kisanfu Mine", {
+      const kisanfuMarker = L.marker(kisanfu).bindTooltip("Kisanfu Mine", {
         permanent: false,
         direction: "top",
         offset: [0, -8],
       });
 
-      const tenkeMarker = L.marker(tenkeFungurume).addTo(map).bindTooltip("Tenke Fungurume mine", {
+      const tenkeMarker = L.marker(tenkeFungurume).bindTooltip("Tenke Fungurume mine", {
         permanent: false,
         direction: "top",
         offset: [0, -8],
       });
 
-      function setMineLabels(visible) {
-        if (labelsVisible === visible) {
+      const mineMarkers = L.layerGroup([kisanfuMarker, tenkeMarker]);
+
+      function setMineTargets(visible) {
+        if (mineTargetsVisible === visible) {
           return;
         }
-        labelsVisible = visible;
+        mineTargetsVisible = visible;
         if (visible) {
+          mineMarkers.addTo(map);
           kisanfuMarker.openTooltip();
           tenkeMarker.openTooltip();
           return;
         }
         kisanfuMarker.closeTooltip();
         tenkeMarker.closeTooltip();
+        map.removeLayer(mineMarkers);
       }
 
       function clamp(value, min, max) {
@@ -425,7 +429,7 @@
         }
         mapStage = nextStage;
         if (nextStage === 0) {
-          setMineLabels(false);
+          setMineTargets(false);
           map.flyTo([basinView.lat, basinView.lng], basinView.zoom, {
             animate: true,
             duration: 1.6,
@@ -459,7 +463,7 @@
         }
 
         const copyOneIn = clamp((progress - 0.03) / 0.11, 0, 1);
-        const copyOneOut = clamp((progress - 0.30) / 0.24, 0, 1);
+        const copyOneOut = clamp((progress - 0.14) / 0.08, 0, 1);
         const copyOneOpacity = copyOneIn * (1 - copyOneOut);
         mapCopyOne.style.opacity = String(copyOneOpacity);
         mapCopyOne.style.transform =
@@ -469,7 +473,7 @@
         mapCopyTwo.style.opacity = String(copyTwoIn);
         mapCopyTwo.style.transform =
           `translate(-50%, calc(-50% + ${(1 - copyTwoIn) * 16}px))`;
-        setMineLabels(activeStage === 1 && progress > 0.86);
+        setMineTargets(activeStage === 1 && progress > 0.94);
       }
 
       updateIntroProgress();
