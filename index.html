@@ -26,7 +26,7 @@
 
       .intro {
         position: relative;
-        height: 240vh;
+        height: 280vh;
       }
 
       .sticky-stage {
@@ -74,8 +74,10 @@
         position: absolute;
         inset: 0;
         z-index: 2;
-        display: grid;
-        place-items: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
         text-align: center;
         padding: 8vh 7vw;
       }
@@ -90,7 +92,7 @@
         text-shadow: 0 12px 36px var(--shadow);
       }
 
-      .dek {
+      .video-dek {
         margin: 0;
         max-width: min(920px, 90vw);
         font-size: clamp(1.05rem, 2.15vw, 1.9rem);
@@ -98,6 +100,24 @@
         color: var(--text-muted);
         text-shadow: 0 8px 26px var(--shadow);
         opacity: 0;
+      }
+
+      .photo-copy {
+        margin-top: 2.4rem;
+        max-width: min(1000px, 92vw);
+        color: var(--text-muted);
+        text-shadow: 0 8px 26px var(--shadow);
+        opacity: 0;
+      }
+
+      .photo-copy p {
+        margin: 0;
+        font-size: clamp(1.02rem, 1.8vw, 1.55rem);
+        line-height: 1.48;
+      }
+
+      .photo-copy p + p {
+        margin-top: 1.6rem;
       }
 
       .after-intro {
@@ -116,7 +136,8 @@
         .video-layer,
         .photo-layer,
         .title,
-        .dek {
+        .video-dek,
+        .photo-copy {
           transition: none !important;
         }
       }
@@ -141,12 +162,29 @@
 
         <div class="text-layer">
           <h1 class="title" id="titleText">Toxic Transition</h1>
-          <p class="dek" id="dekText">
+          <p class="video-dek" id="videoDek">
             A new investigation by the Environmental Investigation Agency US
             (EIA) and PremiCongo into cobalt mining in the Democratic Republic
             of the Congo (DRC) exposes the toxic underbelly of the world’s
             energy transition.
           </p>
+          <div class="photo-copy" id="photoCopy">
+            <p>
+              The investigation: The last few years have seen dramatic growth
+              in the production and sale of EVs, as well as in the lithium-ion
+              batteries needed to power these vehicles. As a consequence,
+              demand is surging for critical minerals like cobalt, which these
+              batteries rely on.
+            </p>
+            <p>
+              The investigation ties the rapid growth of the world’s largest
+              cobalt producer and the booming production of electric vehicles
+              (EVs) by some of the world’s largest car manufacturers - such as
+              Volkswagen, Mercedes-Benz, BMW, and Stellantis - to what appears
+              to be air pollution spanning multiple years, impacting dozens of
+              families and workers.
+            </p>
+          </div>
         </div>
       </div>
     </section>
@@ -160,7 +198,8 @@
       const videoLayer = document.getElementById("videoLayer");
       const photoLayer = document.getElementById("photoLayer");
       const titleText = document.getElementById("titleText");
-      const dekText = document.getElementById("dekText");
+      const videoDek = document.getElementById("videoDek");
+      const photoCopy = document.getElementById("photoCopy");
 
       function clamp(value, min, max) {
         return Math.min(max, Math.max(min, value));
@@ -172,18 +211,25 @@
         const scrolled = clamp(-rect.top, 0, total);
         const progress = scrolled / total;
 
-        const mediaMix = clamp((progress - 0.18) / 0.42, 0, 1);
-        const titleFade = clamp((progress - 0.25) / 0.3, 0, 1);
-        const dekFade = clamp((progress - 0.46) / 0.24, 0, 1);
+        const mediaMix = clamp((progress - 0.48) / 0.28, 0, 1);
+        const titleLift = clamp(progress / 0.22, 0, 1);
+        const titleFade = clamp((progress - 0.58) / 0.2, 0, 1);
+        const videoDekIn = clamp((progress - 0.07) / 0.12, 0, 1);
+        const videoDekOut = clamp((progress - 0.52) / 0.16, 0, 1);
+        const photoCopyFade = clamp((progress - 0.66) / 0.18, 0, 1);
 
         videoLayer.style.opacity = String(1 - mediaMix);
         photoLayer.style.opacity = String(mediaMix);
 
         titleText.style.opacity = String(1 - titleFade);
-        titleText.style.transform = `translateY(${titleFade * -30}px)`;
+        titleText.style.transform = `translateY(${titleLift * -68}px)`;
 
-        dekText.style.opacity = String(dekFade);
-        dekText.style.transform = `translateY(${(1 - dekFade) * 24}px)`;
+        const videoDekOpacity = videoDekIn * (1 - videoDekOut);
+        videoDek.style.opacity = String(videoDekOpacity);
+        videoDek.style.transform = `translateY(${(1 - videoDekIn) * 20}px)`;
+
+        photoCopy.style.opacity = String(photoCopyFade);
+        photoCopy.style.transform = `translateY(${(1 - photoCopyFade) * 22}px)`;
       }
 
       updateIntroProgress();
