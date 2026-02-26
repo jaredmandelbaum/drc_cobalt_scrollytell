@@ -4,6 +4,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Toxic Transition</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
     <style>
       :root {
         --bg: #090909;
@@ -158,7 +164,7 @@
         background: #050505;
       }
 
-      .map-frame {
+      .map-canvas {
         position: absolute;
         inset: 0;
         width: 100%;
@@ -272,20 +278,9 @@
       </div>
     </section>
 
-    <section class="after-intro">
-      <p>Continue with your next scrollytell section here.</p>
-    </section>
-
     <section class="map-scroll" id="mapScroll">
       <div class="map-sticky">
-        <iframe
-          id="googleMapFrame"
-          class="map-frame"
-          title="Cobalt mining context map"
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
-          src="https://www.google.com/maps?q=-1.5,21.5&z=5&hl=en&output=embed"
-        ></iframe>
+        <div id="mapCanvas" class="map-canvas" aria-label="Satellite map"></div>
         <div class="map-overlay">
           <p class="map-copy" id="mapCopyOne">
             Almost half the cobalt in the world is currently produced by a
@@ -304,6 +299,11 @@
       <p>Continue with your next scrollytell section here.</p>
     </section>
 
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
     <script>
       const intro = document.getElementById("intro");
       const videoLayer = document.getElementById("videoLayer");
@@ -312,17 +312,41 @@
       const videoDek = document.getElementById("videoDek");
       const photoCopy = document.getElementById("photoCopy");
       const mapScroll = document.getElementById("mapScroll");
-      const googleMapFrame = document.getElementById("googleMapFrame");
       const mapCopyOne = document.getElementById("mapCopyOne");
       const mapCopyTwo = document.getElementById("mapCopyTwo");
 
-      const mapViews = {
-        basin: "https://www.google.com/maps?q=-1.5,21.5&z=5&hl=en&output=embed",
-        drc: "https://www.google.com/maps?q=-2.5,23.8&z=6&hl=en&output=embed",
-        mines:
-          "https://www.google.com/maps?q=-10.712697,26.110676&z=10&hl=en&output=embed",
-      };
-      let currentMapView = "";
+      const map = L.map("mapCanvas", {
+        zoomControl: false,
+        attributionControl: false,
+        dragging: false,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        boxZoom: false,
+        keyboard: false,
+        touchZoom: false,
+        tap: false,
+        zoomSnap: 0.01,
+      }).setView([-1.5, 21.5], 5);
+
+      L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        {
+          maxZoom: 18,
+        }
+      ).addTo(map);
+
+      L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+        {
+          maxZoom: 18,
+        }
+      ).addTo(map);
+
+      const mapKeyframes = [
+        { p: 0, lat: -1.5, lng: 21.5, zoom: 5.0 },
+        { p: 0.4, lat: -2.5, lng: 23.8, zoom: 6.3 },
+        { p: 1.0, lat: -10.712697, lng: 26.110676, zoom: 9.9 },
+      ];
 
       function clamp(value, min, max) {
         return Math.min(max, Math.max(min, value));
@@ -361,12 +385,24 @@
         );
       }
 
-      function setMapView(viewName) {
-        if (currentMapView === viewName) {
-          return;
+      function lerp(a, b, t) {
+        return a + (b - a) * t;
+      }
+
+      function interpolateMapCamera(progress) {
+        for (let i = 0; i < mapKeyframes.length - 1; i += 1) {
+          const from = mapKeyframes[i];
+          const to = mapKeyframes[i + 1];
+          if (progress >= from.p && progress <= to.p) {
+            const localT = (progress - from.p) / (to.p - from.p);
+            return {
+              lat: lerp(from.lat, to.lat, localT),
+              lng: lerp(from.lng, to.lng, localT),
+              zoom: lerp(from.zoom, to.zoom, localT),
+            };
+          }
         }
-        currentMapView = viewName;
-        googleMapFrame.src = mapViews[viewName];
+        return mapKeyframes[mapKeyframes.length - 1];
       }
 
       function updateMapProgress() {
@@ -375,13 +411,8 @@
         const scrolled = clamp(-rect.top, 0, total);
         const progress = scrolled / total;
 
-        if (progress < 0.26) {
-          setMapView("basin");
-        } else if (progress < 0.62) {
-          setMapView("drc");
-        } else {
-          setMapView("mines");
-        }
+        const camera = interpolateMapCamera(progress);
+        map.setView([camera.lat, camera.lng], camera.zoom, { animate: false });
 
         const copyOneIn = clamp((progress - 0.08) / 0.14, 0, 1);
         const copyOneOut = clamp((progress - 0.58) / 0.16, 0, 1);
@@ -406,6 +437,7 @@
       );
       window.addEventListener("resize", () => {
         updateIntroProgress();
+        map.invalidateSize();
         updateMapProgress();
       });
     </script>
