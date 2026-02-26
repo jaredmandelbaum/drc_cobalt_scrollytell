@@ -92,10 +92,17 @@
         top: 50%;
         transform: translate(-50%, calc(-50% + var(--lockup-offset, 0px)));
         width: min(1100px, 92vw);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
       }
 
       .title {
         margin: 0;
+        width: max-content;
+        max-width: 100%;
         font-size: clamp(2.25rem, 8vw, 6.4rem);
         letter-spacing: 0.03em;
         line-height: 0.95;
@@ -132,8 +139,17 @@
         line-height: 1.5;
       }
 
+      .photo-lead {
+        display: block;
+        margin-bottom: 0.72rem;
+        font-size: clamp(1.35rem, 2.6vw, 2.1rem);
+        font-weight: 800;
+        letter-spacing: 0.01em;
+        text-align: center;
+      }
+
       .photo-copy p + p {
-        margin-top: 1.6rem;
+        margin-top: 2.5rem;
       }
 
       .after-intro {
@@ -265,11 +281,11 @@
           </div>
           <div class="photo-copy" id="photoCopy">
             <p>
-              The investigation: The last few years have seen dramatic growth
-              in the production and sale of EVs, as well as in the lithium-ion
-              batteries needed to power these vehicles. As a consequence,
-              demand is surging for critical minerals like cobalt, which these
-              batteries rely on.
+              <span class="photo-lead">The investigation:</span>
+              The last few years have seen dramatic growth in the production
+              and sale of EVs, as well as in the lithium-ion batteries needed
+              to power these vehicles. As a consequence, demand is surging for
+              critical minerals like cobalt, which these batteries rely on.
             </p>
             <p>
               The investigation ties the rapid growth of the world’s largest
