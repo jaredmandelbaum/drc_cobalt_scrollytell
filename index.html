@@ -144,6 +144,77 @@
         color: rgba(242, 238, 233, 0.72);
       }
 
+      .map-scroll {
+        position: relative;
+        height: 260vh;
+        background: #070707;
+      }
+
+      .map-sticky {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow: hidden;
+        background: #050505;
+      }
+
+      .map-frame {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+      }
+
+      .map-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        display: grid;
+        place-items: center;
+        padding: 8vh 7vw;
+        pointer-events: none;
+      }
+
+      .map-overlay::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          to bottom,
+          rgba(0, 0, 0, 0.2) 0%,
+          rgba(0, 0, 0, 0.46) 80%,
+          rgba(0, 0, 0, 0.58) 100%
+        );
+        z-index: -1;
+      }
+
+      .map-copy {
+        position: absolute;
+        margin: 0;
+        max-width: min(1060px, 92vw);
+        font-size: clamp(1.08rem, 2.1vw, 1.92rem);
+        line-height: 1.45;
+        text-align: center;
+        color: rgba(242, 238, 233, 0.94);
+        text-shadow: 0 8px 26px rgba(0, 0, 0, 0.82);
+        opacity: 0;
+        transform: translateY(16px);
+        text-wrap: pretty;
+      }
+
+      .after-map {
+        min-height: 35vh;
+        padding: 12vh 8vw;
+        background: #080808;
+      }
+
+      .after-map p {
+        margin: 0;
+        max-width: 70ch;
+        color: rgba(242, 238, 233, 0.72);
+      }
+
       @media (prefers-reduced-motion: reduce) {
         .video-layer,
         .photo-layer,
@@ -205,6 +276,34 @@
       <p>Continue with your next scrollytell section here.</p>
     </section>
 
+    <section class="map-scroll" id="mapScroll">
+      <div class="map-sticky">
+        <iframe
+          id="googleMapFrame"
+          class="map-frame"
+          title="Cobalt mining context map"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          src="https://www.google.com/maps?q=-1.5,21.5&z=5&hl=en&output=embed"
+        ></iframe>
+        <div class="map-overlay">
+          <p class="map-copy" id="mapCopyOne">
+            Almost half the cobalt in the world is currently produced by a
+            Chinese company called CMOC Group Ltd (CMOC; formerly China
+            Molybdenum Co., Ltd.) through its mining operations in DRC.
+          </p>
+          <p class="map-copy" id="mapCopyTwo">
+            This is where the group controls two of the world’s largest
+            copper-cobalt mines: the Tenke Fungurume mine and the Kisanfu mine.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="after-map">
+      <p>Continue with your next scrollytell section here.</p>
+    </section>
+
     <script>
       const intro = document.getElementById("intro");
       const videoLayer = document.getElementById("videoLayer");
@@ -212,6 +311,18 @@
       const titleText = document.getElementById("titleText");
       const videoDek = document.getElementById("videoDek");
       const photoCopy = document.getElementById("photoCopy");
+      const mapScroll = document.getElementById("mapScroll");
+      const googleMapFrame = document.getElementById("googleMapFrame");
+      const mapCopyOne = document.getElementById("mapCopyOne");
+      const mapCopyTwo = document.getElementById("mapCopyTwo");
+
+      const mapViews = {
+        basin: "https://www.google.com/maps?q=-1.5,21.5&z=5&hl=en&output=embed",
+        drc: "https://www.google.com/maps?q=-2.5,23.8&z=6&hl=en&output=embed",
+        mines:
+          "https://www.google.com/maps?q=-10.712697,26.110676&z=10&hl=en&output=embed",
+      };
+      let currentMapView = "";
 
       function clamp(value, min, max) {
         return Math.min(max, Math.max(min, value));
@@ -250,9 +361,53 @@
         );
       }
 
+      function setMapView(viewName) {
+        if (currentMapView === viewName) {
+          return;
+        }
+        currentMapView = viewName;
+        googleMapFrame.src = mapViews[viewName];
+      }
+
+      function updateMapProgress() {
+        const rect = mapScroll.getBoundingClientRect();
+        const total = Math.max(1, rect.height - window.innerHeight);
+        const scrolled = clamp(-rect.top, 0, total);
+        const progress = scrolled / total;
+
+        if (progress < 0.26) {
+          setMapView("basin");
+        } else if (progress < 0.62) {
+          setMapView("drc");
+        } else {
+          setMapView("mines");
+        }
+
+        const copyOneIn = clamp((progress - 0.08) / 0.14, 0, 1);
+        const copyOneOut = clamp((progress - 0.58) / 0.16, 0, 1);
+        const copyOneOpacity = copyOneIn * (1 - copyOneOut);
+        mapCopyOne.style.opacity = String(copyOneOpacity);
+        mapCopyOne.style.transform = `translateY(${(1 - copyOneIn) * 16}px)`;
+
+        const copyTwoIn = clamp((progress - 0.68) / 0.16, 0, 1);
+        mapCopyTwo.style.opacity = String(copyTwoIn);
+        mapCopyTwo.style.transform = `translateY(${(1 - copyTwoIn) * 16}px)`;
+      }
+
       updateIntroProgress();
-      window.addEventListener("scroll", updateIntroProgress, { passive: true });
-      window.addEventListener("resize", updateIntroProgress);
+      updateMapProgress();
+      window.addEventListener(
+        "scroll",
+        () => {
+          updateIntroProgress();
+          updateMapProgress();
+        },
+        { passive: true }
+      );
+      window.addEventListener("resize", () => {
+        updateIntroProgress();
+        updateMapProgress();
+      });
     </script>
   </body>
 </html>
