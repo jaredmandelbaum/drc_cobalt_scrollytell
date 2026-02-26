@@ -86,32 +86,30 @@
         padding: 8vh 7vw;
       }
 
-      .title {
+      .intro-lockup {
         position: absolute;
         left: 50%;
         top: 50%;
+        transform: translate(-50%, calc(-50% + var(--lockup-offset, 0px)));
+        width: min(1100px, 92vw);
+      }
+
+      .title {
         margin: 0;
-        max-width: 12ch;
         font-size: clamp(2.25rem, 8vw, 6.4rem);
         letter-spacing: 0.03em;
         line-height: 0.95;
         text-transform: uppercase;
         text-shadow: 0 12px 36px var(--shadow);
-        transform: translate(-50%, calc(-50% + var(--title-offset, 0px)));
       }
 
       .video-dek {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        margin: 0;
+        margin: 1.05rem 0 0;
         max-width: min(920px, 90vw);
         font-size: clamp(1.05rem, 2.15vw, 1.9rem);
         line-height: 1.35;
         color: var(--text-muted);
         text-shadow: 0 8px 26px var(--shadow);
-        opacity: 0;
-        transform: translate(-50%, calc(-50% + var(--video-dek-offset, 0px)));
         text-wrap: pretty;
       }
 
@@ -256,13 +254,15 @@
         </div>
 
         <div class="text-layer">
-          <h1 class="title" id="titleText">Toxic Transition</h1>
-          <p class="video-dek" id="videoDek">
-            A new investigation by the Environmental Investigation Agency US
-            (EIA) and PremiCongo into cobalt mining in the Democratic Republic
-            of the Congo (DRC) exposes the toxic underbelly of the world’s
-            energy transition.
-          </p>
+          <div class="intro-lockup" id="introLockup">
+            <h1 class="title" id="titleText">Toxic Transition</h1>
+            <p class="video-dek" id="videoDek">
+              A new investigation by the Environmental Investigation Agency US
+              (EIA) and PremiCongo into cobalt mining in the Democratic Republic
+              of the Congo (DRC) exposes the toxic underbelly of the world’s
+              energy transition.
+            </p>
+          </div>
           <div class="photo-copy" id="photoCopy">
             <p>
               The investigation: The last few years have seen dramatic growth
@@ -317,6 +317,7 @@
       const photoLayer = document.getElementById("photoLayer");
       const titleText = document.getElementById("titleText");
       const videoDek = document.getElementById("videoDek");
+      const introLockup = document.getElementById("introLockup");
       const photoCopy = document.getElementById("photoCopy");
       const mapScroll = document.getElementById("mapScroll");
       const mapCopyOne = document.getElementById("mapCopyOne");
@@ -378,6 +379,10 @@
         fillOpacity: 0.2,
       }).addTo(map);
 
+      function getMineTargetZoom() {
+        return map.getBoundsZoom(mineBounds, false, L.point(140, 140));
+      }
+
       function setMineTargets(visible) {
         if (mineTargetsVisible === visible) {
           return;
@@ -407,22 +412,16 @@
         const mediaMix = clamp((progress - 0.48) / 0.28, 0, 1);
         const titleLift = clamp(progress / 0.22, 0, 1);
         const titleFade = clamp((progress - 0.58) / 0.2, 0, 1);
-        const videoDekIn = clamp((progress - 0.07) / 0.12, 0, 1);
-        const videoDekOut = clamp((progress - 0.52) / 0.16, 0, 1);
         const photoCopyFade = clamp((progress - 0.66) / 0.18, 0, 1);
 
         videoLayer.style.opacity = String(1 - mediaMix);
         photoLayer.style.opacity = String(mediaMix);
 
-        titleText.style.opacity = String(1 - titleFade);
-        titleText.style.setProperty("--title-offset", `${titleLift * -62}px`);
-
-        const videoDekOpacity = videoDekIn * (1 - videoDekOut);
-        videoDek.style.opacity = String(videoDekOpacity);
-        videoDek.style.setProperty(
-          "--video-dek-offset",
-          `${60 + (1 - videoDekIn) * 16}px`
-        );
+        const lockupOpacity = String(1 - titleFade);
+        introLockup.style.opacity = lockupOpacity;
+        titleText.style.opacity = lockupOpacity;
+        videoDek.style.opacity = lockupOpacity;
+        introLockup.style.setProperty("--lockup-offset", `${titleLift * -62}px`);
 
         photoCopy.style.opacity = String(photoCopyFade);
         photoCopy.style.setProperty(
@@ -455,14 +454,28 @@
         });
       }
 
+      function updateMineRevealByZoom() {
+        if (mapStage !== 1) {
+          mapCopyTwo.style.opacity = "0";
+          mapCopyTwo.style.transform = "translate(-50%, calc(-50% + 16px))";
+          setMineTargets(false);
+          return;
+        }
+
+        const targetZoom = getMineTargetZoom();
+        const revealStartZoom = basinView.zoom + (targetZoom - basinView.zoom) * 0.85;
+        const revealProgress = clamp((map.getZoom() - revealStartZoom) / 0.45, 0, 1);
+        mapCopyTwo.style.opacity = String(revealProgress);
+        mapCopyTwo.style.transform = `translate(-50%, calc(-50% + ${(1 - revealProgress) * 16}px))`;
+        setMineTargets(revealProgress > 0.02);
+      }
+
       function updateMapProgress() {
         const rect = mapScroll.getBoundingClientRect();
         const total = Math.max(1, rect.height - window.innerHeight);
         const scrolled = clamp(-rect.top, 0, total);
         const progress = scrolled / total;
         let activeStage = 0;
-        const finalReveal = 0.85;
-
         if (progress < 0.28) {
           activeStage = 0;
           goToMapStage(0);
@@ -483,11 +496,7 @@
           mapCopyOne.style.left = `${desiredX}px`;
         }
 
-        const copyTwoIn = clamp((progress - finalReveal) / 0.08, 0, 1);
-        mapCopyTwo.style.opacity = String(copyTwoIn);
-        mapCopyTwo.style.transform =
-          `translate(-50%, calc(-50% + ${(1 - copyTwoIn) * 16}px))`;
-        setMineTargets(activeStage === 1 && progress > finalReveal);
+        updateMineRevealByZoom();
       }
 
       updateIntroProgress();
@@ -505,6 +514,7 @@
         map.invalidateSize();
         updateMapProgress();
       });
+      map.on("zoom moveend", updateMineRevealByZoom);
     </script>
   </body>
 </html>
