@@ -200,7 +200,7 @@
       }
 
       .map-copy-left {
-        left: 14%;
+        left: 18%;
         top: 66%;
         max-width: min(500px, 30vw);
         text-align: center;
@@ -350,6 +350,7 @@
       ).addTo(map);
 
       const basinView = { lat: -1.5, lng: 21.5, zoom: 5.0 };
+      const westCoastRef = [0.0, 9.0];
       const kisanfu = [-10.7870667, 25.9300361];
       const tenkeFungurume = [-10.6383278, 26.2913167];
       const mineBounds = L.latLngBounds([kisanfu, tenkeFungurume]);
@@ -369,6 +370,13 @@
       });
 
       const mineMarkers = L.layerGroup([kisanfuMarker, tenkeMarker]);
+      L.circleMarker(westCoastRef, {
+        radius: 6,
+        color: "#ffffff",
+        weight: 2,
+        fillColor: "#ffffff",
+        fillOpacity: 0.2,
+      }).addTo(map);
 
       function setMineTargets(visible) {
         if (mineTargetsVisible === visible) {
@@ -453,8 +461,9 @@
         const scrolled = clamp(-rect.top, 0, total);
         const progress = scrolled / total;
         let activeStage = 0;
+        const finalReveal = 0.85;
 
-        if (progress < 0.14) {
+        if (progress < 0.28) {
           activeStage = 0;
           goToMapStage(0);
         } else {
@@ -463,17 +472,22 @@
         }
 
         const copyOneIn = clamp((progress - 0.03) / 0.11, 0, 1);
-        const copyOneOut = clamp((progress - 0.14) / 0.08, 0, 1);
+        const copyOneOut = clamp((progress - 0.29) / 0.1, 0, 1);
         const copyOneOpacity = copyOneIn * (1 - copyOneOut);
         mapCopyOne.style.opacity = String(copyOneOpacity);
         mapCopyOne.style.transform =
           `translate(-50%, calc(-50% + ${(1 - copyOneIn) * 16}px))`;
+        if (activeStage === 0) {
+          const coastX = map.latLngToContainerPoint(westCoastRef).x;
+          const desiredX = clamp(coastX * 0.5, 140, window.innerWidth * 0.42);
+          mapCopyOne.style.left = `${desiredX}px`;
+        }
 
-        const copyTwoIn = clamp((progress - 0.76) / 0.16, 0, 1);
+        const copyTwoIn = clamp((progress - finalReveal) / 0.08, 0, 1);
         mapCopyTwo.style.opacity = String(copyTwoIn);
         mapCopyTwo.style.transform =
           `translate(-50%, calc(-50% + ${(1 - copyTwoIn) * 16}px))`;
-        setMineTargets(activeStage === 1 && progress > 0.94);
+        setMineTargets(activeStage === 1 && progress > finalReveal);
       }
 
       updateIntroProgress();
