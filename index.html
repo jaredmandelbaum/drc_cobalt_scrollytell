@@ -170,12 +170,13 @@
         width: 100%;
         height: 100%;
         border: 0;
+        z-index: 1;
       }
 
       .map-overlay {
         position: absolute;
         inset: 0;
-        z-index: 2;
+        z-index: 20;
         display: grid;
         place-items: center;
         padding: 8vh 7vw;
@@ -391,24 +392,26 @@
         const total = Math.max(1, rect.height - window.innerHeight);
         const scrolled = clamp(-rect.top, 0, total);
         const progress = scrolled / total;
+        let activeStage = 0;
 
         if (progress < 0.28) {
+          activeStage = 0;
           goToMapStage(0);
         } else if (progress < 0.62) {
+          activeStage = 1;
           goToMapStage(1);
         } else {
+          activeStage = 2;
           goToMapStage(2);
         }
 
-        const copyOneIn = clamp((progress - 0.08) / 0.14, 0, 1);
-        const copyOneOut = clamp((progress - 0.58) / 0.16, 0, 1);
-        const copyOneOpacity = copyOneIn * (1 - copyOneOut);
-        mapCopyOne.style.opacity = String(copyOneOpacity);
-        mapCopyOne.style.transform = `translateY(${(1 - copyOneIn) * 16}px)`;
+        mapCopyOne.style.opacity = activeStage < 2 ? "1" : "0";
+        mapCopyOne.style.transform =
+          activeStage < 2 ? "translateY(0px)" : "translateY(12px)";
 
-        const copyTwoIn = clamp((progress - 0.68) / 0.16, 0, 1);
-        mapCopyTwo.style.opacity = String(copyTwoIn);
-        mapCopyTwo.style.transform = `translateY(${(1 - copyTwoIn) * 16}px)`;
+        mapCopyTwo.style.opacity = activeStage === 2 ? "1" : "0";
+        mapCopyTwo.style.transform =
+          activeStage === 2 ? "translateY(0px)" : "translateY(12px)";
       }
 
       updateIntroProgress();
