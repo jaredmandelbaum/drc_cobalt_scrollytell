@@ -74,15 +74,16 @@
         position: absolute;
         inset: 0;
         z-index: 2;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
+        display: grid;
+        place-items: center;
         text-align: center;
         padding: 8vh 7vw;
       }
 
       .title {
+        position: absolute;
+        left: 50%;
+        top: 50%;
         margin: 0;
         max-width: 12ch;
         font-size: clamp(2.25rem, 8vw, 6.4rem);
@@ -90,9 +91,13 @@
         line-height: 0.95;
         text-transform: uppercase;
         text-shadow: 0 12px 36px var(--shadow);
+        transform: translate(-50%, calc(-50% + var(--title-offset, 0px)));
       }
 
       .video-dek {
+        position: absolute;
+        left: 50%;
+        top: 50%;
         margin: 0;
         max-width: min(920px, 90vw);
         font-size: clamp(1.05rem, 2.15vw, 1.9rem);
@@ -100,20 +105,27 @@
         color: var(--text-muted);
         text-shadow: 0 8px 26px var(--shadow);
         opacity: 0;
+        transform: translate(-50%, calc(-50% + var(--video-dek-offset, 0px)));
+        text-wrap: pretty;
       }
 
       .photo-copy {
-        margin-top: 2.4rem;
-        max-width: min(1000px, 92vw);
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        margin: 0;
+        max-width: min(1240px, 95vw);
         color: var(--text-muted);
         text-shadow: 0 8px 26px var(--shadow);
         opacity: 0;
+        transform: translate(-50%, calc(-50% + var(--photo-copy-offset, 0px)));
+        text-wrap: pretty;
       }
 
       .photo-copy p {
         margin: 0;
-        font-size: clamp(1.02rem, 1.8vw, 1.55rem);
-        line-height: 1.48;
+        font-size: clamp(1.05rem, 1.95vw, 1.62rem);
+        line-height: 1.5;
       }
 
       .photo-copy p + p {
@@ -222,14 +234,20 @@
         photoLayer.style.opacity = String(mediaMix);
 
         titleText.style.opacity = String(1 - titleFade);
-        titleText.style.transform = `translateY(${titleLift * -68}px)`;
+        titleText.style.setProperty("--title-offset", `${titleLift * -62}px`);
 
         const videoDekOpacity = videoDekIn * (1 - videoDekOut);
         videoDek.style.opacity = String(videoDekOpacity);
-        videoDek.style.transform = `translateY(${(1 - videoDekIn) * 20}px)`;
+        videoDek.style.setProperty(
+          "--video-dek-offset",
+          `${60 + (1 - videoDekIn) * 16}px`
+        );
 
         photoCopy.style.opacity = String(photoCopyFade);
-        photoCopy.style.transform = `translateY(${(1 - photoCopyFade) * 22}px)`;
+        photoCopy.style.setProperty(
+          "--photo-copy-offset",
+          `${(1 - photoCopyFade) * 12}px`
+        );
       }
 
       updateIntroProgress();
