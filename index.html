@@ -182,19 +182,6 @@
         pointer-events: none;
       }
 
-      .map-overlay::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-          to bottom,
-          rgba(0, 0, 0, 0.2) 0%,
-          rgba(0, 0, 0, 0.46) 80%,
-          rgba(0, 0, 0, 0.58) 100%
-        );
-        z-index: -1;
-      }
-
       .map-copy {
         position: absolute;
         margin: 0;
@@ -347,6 +334,7 @@
         { p: 0.4, lat: -2.5, lng: 23.8, zoom: 6.3 },
         { p: 1.0, lat: -10.712697, lng: 26.110676, zoom: 9.9 },
       ];
+      let mapStage = -1;
 
       function clamp(value, min, max) {
         return Math.min(max, Math.max(min, value));
@@ -385,24 +373,17 @@
         );
       }
 
-      function lerp(a, b, t) {
-        return a + (b - a) * t;
-      }
-
-      function interpolateMapCamera(progress) {
-        for (let i = 0; i < mapKeyframes.length - 1; i += 1) {
-          const from = mapKeyframes[i];
-          const to = mapKeyframes[i + 1];
-          if (progress >= from.p && progress <= to.p) {
-            const localT = (progress - from.p) / (to.p - from.p);
-            return {
-              lat: lerp(from.lat, to.lat, localT),
-              lng: lerp(from.lng, to.lng, localT),
-              zoom: lerp(from.zoom, to.zoom, localT),
-            };
-          }
+      function goToMapStage(nextStage) {
+        if (mapStage === nextStage) {
+          return;
         }
-        return mapKeyframes[mapKeyframes.length - 1];
+        mapStage = nextStage;
+        const target = mapKeyframes[nextStage];
+        map.flyTo([target.lat, target.lng], target.zoom, {
+          animate: true,
+          duration: nextStage === 2 ? 2.2 : 1.8,
+          easeLinearity: 0.2,
+        });
       }
 
       function updateMapProgress() {
@@ -411,8 +392,13 @@
         const scrolled = clamp(-rect.top, 0, total);
         const progress = scrolled / total;
 
-        const camera = interpolateMapCamera(progress);
-        map.setView([camera.lat, camera.lng], camera.zoom, { animate: false });
+        if (progress < 0.28) {
+          goToMapStage(0);
+        } else if (progress < 0.62) {
+          goToMapStage(1);
+        } else {
+          goToMapStage(2);
+        }
 
         const copyOneIn = clamp((progress - 0.08) / 0.14, 0, 1);
         const copyOneOut = clamp((progress - 0.58) / 0.16, 0, 1);
