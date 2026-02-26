@@ -188,7 +188,7 @@
         left: 50%;
         top: 50%;
         margin: 0;
-        max-width: min(1060px, 92vw);
+        max-width: min(920px, 86vw);
         font-size: clamp(1.08rem, 2.1vw, 1.92rem);
         line-height: 1.45;
         text-align: center;
@@ -200,10 +200,10 @@
       }
 
       .map-copy-left {
-        left: 30%;
+        left: 21%;
         top: 66%;
-        max-width: min(640px, 40vw);
-        text-align: left;
+        max-width: min(500px, 30vw);
+        text-align: center;
       }
 
       .after-map {
@@ -295,7 +295,8 @@
           </p>
           <p class="map-copy" id="mapCopyTwo">
             This is where the group controls two of the world’s largest
-            copper-cobalt mines: the Tenke Fungurume mine and the Kisanfu mine.
+            copper-cobalt mines: the Tenke Fungurume mine and the
+            <span style="white-space: nowrap">Kisanfu mine.</span>
           </p>
         </div>
       </div>
@@ -353,18 +354,33 @@
       const tenkeFungurume = [-10.6383278, 26.2913167];
       const mineBounds = L.latLngBounds([kisanfu, tenkeFungurume]);
       let mapStage = -1;
+      let labelsVisible = false;
 
-      L.marker(kisanfu).addTo(map).bindTooltip("Kisanfu Mine", {
-        permanent: true,
+      const kisanfuMarker = L.marker(kisanfu).addTo(map).bindTooltip("Kisanfu Mine", {
+        permanent: false,
         direction: "top",
         offset: [0, -8],
       });
 
-      L.marker(tenkeFungurume).addTo(map).bindTooltip("Tenke Fungurume mine", {
-        permanent: true,
+      const tenkeMarker = L.marker(tenkeFungurume).addTo(map).bindTooltip("Tenke Fungurume mine", {
+        permanent: false,
         direction: "top",
         offset: [0, -8],
       });
+
+      function setMineLabels(visible) {
+        if (labelsVisible === visible) {
+          return;
+        }
+        labelsVisible = visible;
+        if (visible) {
+          kisanfuMarker.openTooltip();
+          tenkeMarker.openTooltip();
+          return;
+        }
+        kisanfuMarker.closeTooltip();
+        tenkeMarker.closeTooltip();
+      }
 
       function clamp(value, min, max) {
         return Math.min(max, Math.max(min, value));
@@ -409,6 +425,7 @@
         }
         mapStage = nextStage;
         if (nextStage === 0) {
+          setMineLabels(false);
           map.flyTo([basinView.lat, basinView.lng], basinView.zoom, {
             animate: true,
             duration: 1.6,
@@ -442,7 +459,7 @@
         }
 
         const copyOneIn = clamp((progress - 0.03) / 0.11, 0, 1);
-        const copyOneOut = clamp((progress - 0.44) / 0.34, 0, 1);
+        const copyOneOut = clamp((progress - 0.30) / 0.24, 0, 1);
         const copyOneOpacity = copyOneIn * (1 - copyOneOut);
         mapCopyOne.style.opacity = String(copyOneOpacity);
         mapCopyOne.style.transform =
@@ -452,6 +469,7 @@
         mapCopyTwo.style.opacity = String(copyTwoIn);
         mapCopyTwo.style.transform =
           `translate(-50%, calc(-50% + ${(1 - copyTwoIn) * 16}px))`;
+        setMineLabels(activeStage === 1 && progress > 0.86);
       }
 
       updateIntroProgress();
