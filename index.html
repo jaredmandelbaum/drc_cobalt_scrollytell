@@ -346,41 +346,6 @@
         opacity: 0;
       }
 
-      .bleed-video-wrap {
-        position: absolute;
-        inset: 0;
-        opacity: 0;
-        z-index: 4;
-        pointer-events: none;
-      }
-
-      .bleed-video-bg {
-        position: absolute;
-        inset: -8%;
-        width: 116%;
-        height: 116%;
-        object-fit: cover;
-        filter: blur(22px) brightness(0.72);
-        transform: scale(1.12);
-      }
-
-      .bleed-video-bg-mask {
-        position: absolute;
-        inset: 0;
-        background: rgba(5, 5, 5, 0.36);
-      }
-
-      .bleed-video-main {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        height: min(84vh, 980px);
-        width: auto;
-        transform: translate(-50%, -50%);
-        border-radius: 14px;
-        box-shadow: 0 24px 56px rgba(0, 0, 0, 0.62);
-      }
-
       .cobalt-scroll {
         position: relative;
         height: 260vh;
@@ -425,8 +390,8 @@
         margin: 0;
         width: min(1100px, 88vw);
         text-align: center;
-        font-size: clamp(1.2rem, 2.15vw, 2rem);
-        line-height: 1.46;
+        font-size: clamp(1.45rem, 2.7vw, 2.45rem);
+        line-height: 1.4;
         color: rgba(246, 246, 246, 0.96);
         background: rgba(44, 44, 44, 0.48);
         border: 1px solid rgba(230, 230, 230, 0.22);
@@ -616,34 +581,12 @@
               alt="Community impact photo 2"
             />
           </div>
-          <div class="bleed-video-wrap" id="bleedVideoWrap">
-            <video
-              class="bleed-video-bg"
-              src="assets/bleedvid.mp4"
-              autoplay
-              muted
-              loop
-              playsinline
-            ></video>
-            <div class="bleed-video-bg-mask"></div>
-            <video
-              class="bleed-video-main"
-              src="assets/bleedvid.mp4"
-              autoplay
-              muted
-              loop
-              playsinline
-            ></video>
-          </div>
         </div>
       </div>
     </section>
 
     <section class="cobalt-scroll" id="cobaltScroll">
       <div class="cobalt-sticky">
-        <div class="cobalt-layer" id="cobaltPrevLayer">
-          <video src="assets/bleedvid.mp4" autoplay muted loop playsinline></video>
-        </div>
         <div class="cobalt-layer" id="cobaltCrushLayer">
           <video src="assets/cobalt_crush.mov" autoplay muted loop playsinline></video>
         </div>
@@ -689,11 +632,9 @@
       const bleedPhoto1 = document.getElementById("bleedPhoto1");
       const bleedPhoto2 = document.getElementById("bleedPhoto2");
       const bleedPhoto3 = document.getElementById("bleedPhoto3");
-      const bleedVideoWrap = document.getElementById("bleedVideoWrap");
       const bleedTextOne = document.getElementById("bleedTextOne");
       const bleedTextTwo = document.getElementById("bleedTextTwo");
       const cobaltScroll = document.getElementById("cobaltScroll");
-      const cobaltPrevLayer = document.getElementById("cobaltPrevLayer");
       const cobaltCrushLayer = document.getElementById("cobaltCrushLayer");
       const cobaltTextOne = document.getElementById("cobaltTextOne");
       const cobaltTextTwo = document.getElementById("cobaltTextTwo");
@@ -943,20 +884,18 @@
         const p2Out = clamp((progress - 0.56) / 0.18, 0, 1);
         const p2 = p2In * (1 - p2Out);
         const p3In = clamp((progress - 0.52) / 0.2, 0, 1);
-        const p3Out = clamp((progress - 0.86) / 0.08, 0, 1);
+        const p3Out = clamp((progress - 0.90) / 0.08, 0, 1);
         const p3 = p3In * (1 - p3Out);
-        const videoIn = clamp((progress - 0.92) / 0.08, 0, 1);
         const textOneIn = clamp((progress - 0.06) / 0.13, 0, 1);
         const textOneOut = clamp((progress - 0.40) / 0.12, 0, 1);
-        const textOne = textOneIn * (1 - textOneOut) * (1 - videoIn);
+        const textOne = textOneIn * (1 - textOneOut);
         const textTwoIn = clamp((progress - 0.52) / 0.14, 0, 1);
-        const textTwoOut = clamp((progress - 0.78) / 0.12, 0, 1);
-        const textTwo = textTwoIn * (1 - textTwoOut) * (1 - videoIn);
+        const textTwoOut = clamp((progress - 0.86) / 0.08, 0, 1);
+        const textTwo = textTwoIn * (1 - textTwoOut);
 
         bleedPhoto1.style.opacity = String(p1);
         bleedPhoto2.style.opacity = String(p2);
         bleedPhoto3.style.opacity = String(p3);
-        bleedVideoWrap.style.opacity = String(videoIn);
         bleedTextOne.style.opacity = String(textOne);
         bleedTextTwo.style.opacity = String(textTwo);
       }
@@ -967,9 +906,7 @@
         const scrolled = clamp(-rect.top, 0, total);
         const progress = scrolled / total;
 
-        const videoBlend = clamp((progress - 0.08) / 0.24, 0, 1);
-        cobaltPrevLayer.style.opacity = String(1 - videoBlend);
-        cobaltCrushLayer.style.opacity = String(videoBlend);
+        cobaltCrushLayer.style.opacity = "1";
 
         const textOneIn = clamp((progress - 0.30) / 0.12, 0, 1);
         const textOneOut = clamp((progress - 0.56) / 0.14, 0, 1);
