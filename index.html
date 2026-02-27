@@ -431,13 +431,13 @@
       const tenkeFungurume = [-10.6383278, 26.2913167];
       const tenkeCenter = [-10.640100188663443, 26.282213719015243];
       const tenkeCloseBounds = L.latLngBounds(
-        [-10.650880188663444, 26.263033719015244],
-        [-10.629320188663442, 26.301393719015242]
+        [-10.646550188663442, 26.271213719015243],
+        [-10.633650188663444, 26.293213719015243]
       );
       const riskCenter = [-10.634007818200445, 26.306915449385475];
       const riskBounds = L.latLngBounds(
-        [-10.646587818200445, 26.284995449385475],
-        [-10.621427818200444, 26.328835449385475]
+        [-10.642207818200445, 26.292585449385474],
+        [-10.625807818200446, 26.321245449385476]
       );
       const mineBounds = L.latLngBounds([kisanfu, tenkeFungurume]);
       let mapStage = -1;
@@ -487,6 +487,21 @@
         copyEl.style.transform = "translate(-50%, calc(-50% + 16px))";
       }
 
+      function updateMineOverviewRevealByZoom() {
+        if (mapStage !== 1) {
+          setCopyVisible(mapCopyTwo, false);
+          setMineTargets(false);
+          return;
+        }
+        const startZoom = basinView.zoom;
+        const endZoom = map.getBoundsZoom(mineBounds, false, L.point(140, 140));
+        const revealStart = startZoom + (endZoom - startZoom) * 0.85;
+        const revealProgress = clamp((map.getZoom() - revealStart) / 0.28, 0, 1);
+        mapCopyTwo.style.opacity = String(revealProgress);
+        mapCopyTwo.style.transform = `translate(-50%, calc(-50% + ${(1 - revealProgress) * 16}px))`;
+        setMineTargets(revealProgress > 0.02);
+      }
+
       function updateIntroProgress() {
         const rect = intro.getBoundingClientRect();
         const total = Math.max(1, rect.height - window.innerHeight);
@@ -533,6 +548,8 @@
           return;
         }
         if (nextStage === 1) {
+          setCopyVisible(mapCopyTwo, false);
+          setMineTargets(false);
           map.flyToBounds(mineBounds, {
             paddingTopLeft: [70, 70],
             paddingBottomRight: [70, 70],
@@ -545,6 +562,7 @@
         }
         if (nextStage === 2) {
           setMineTargets(false);
+          setCopyVisible(mapCopyTwo, false);
           map.flyToBounds(tenkeCloseBounds, {
             paddingTopLeft: [80, 90],
             paddingBottomRight: [90, 90],
@@ -557,10 +575,12 @@
         }
         if (nextStage === 3) {
           setMineTargets(false);
+          setCopyVisible(mapCopyTwo, false);
           // Keep the same close-up camera as stage 2; only text changes.
           return;
         }
         setMineTargets(false);
+        setCopyVisible(mapCopyTwo, false);
         map.flyToBounds(riskBounds, {
           animate: true,
           duration: 2.6,
@@ -604,8 +624,7 @@
           mapCopyOne.style.left = `${desiredX}px`;
         }
 
-        setCopyVisible(mapCopyTwo, activeStage === 1);
-        setMineTargets(activeStage === 1);
+        updateMineOverviewRevealByZoom();
         setCopyVisible(mapCopyThree, activeStage === 2);
         setCopyVisible(mapCopyFour, activeStage === 3);
         setCopyVisible(mapCopyFive, activeStage === 4);
@@ -626,6 +645,7 @@
         map.invalidateSize();
         updateMapProgress();
       });
+      map.on("zoom move", updateMineOverviewRevealByZoom);
     </script>
   </body>
 </html>
