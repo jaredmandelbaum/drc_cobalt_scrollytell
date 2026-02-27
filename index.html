@@ -1008,7 +1008,7 @@
         const scrolled = clamp(-rect.top, 0, total);
         const progress = scrolled / total;
 
-        const photoOneIn = clamp((progress - 0.02) / 0.2, 0, 1);
+        const photoOneIn = clamp(progress / 0.08, 0, 1);
         const photoOneOut = clamp((progress - 0.66) / 0.18, 0, 1);
         const one = photoOneIn * (1 - photoOneOut);
         const two = clamp((progress - 0.66) / 0.18, 0, 1);
