@@ -302,11 +302,6 @@
         width: 100%;
         max-width: 38ch;
         min-height: 48vh;
-        background: rgba(16, 40, 31, 0.58);
-        border: 1px solid rgba(180, 214, 195, 0.24);
-        border-radius: 16px;
-        backdrop-filter: blur(4px);
-        padding: clamp(0.9rem, 2vw, 1.45rem);
       }
 
       .bleed-copy {
@@ -315,12 +310,19 @@
         top: 50%;
         transform: translateY(-50%);
         margin: 0;
+        width: 100%;
+        box-sizing: border-box;
         font-size: clamp(1.2rem, 2.2vw, 1.9rem);
         line-height: 1.52;
         color: rgba(245, 241, 235, 0.96);
         text-shadow: 0 10px 28px rgba(0, 0, 0, 0.82);
         opacity: 0;
         text-align: center;
+        background: rgba(16, 40, 31, 0.58);
+        border: 1px solid rgba(180, 214, 195, 0.24);
+        border-radius: 16px;
+        backdrop-filter: blur(4px);
+        padding: clamp(1.2rem, 2.6vw, 2rem) clamp(1.25rem, 2.8vw, 2.2rem);
       }
 
       .bleed-visuals {
@@ -348,6 +350,8 @@
         position: absolute;
         inset: 0;
         opacity: 0;
+        z-index: 4;
+        pointer-events: none;
       }
 
       .bleed-video-bg {
@@ -555,25 +559,25 @@
               src="assets/bleed2.jpg"
               alt="Community impact photo 2"
             />
-            <div class="bleed-video-wrap" id="bleedVideoWrap">
-              <video
-                class="bleed-video-bg"
-                src="assets/bleedvid.mp4"
-                autoplay
-                muted
-                loop
-                playsinline
-              ></video>
-              <div class="bleed-video-bg-mask"></div>
-              <video
-                class="bleed-video-main"
-                src="assets/bleedvid.mp4"
-                autoplay
-                muted
-                loop
-                playsinline
-              ></video>
-            </div>
+          </div>
+          <div class="bleed-video-wrap" id="bleedVideoWrap">
+            <video
+              class="bleed-video-bg"
+              src="assets/bleedvid.mp4"
+              autoplay
+              muted
+              loop
+              playsinline
+            ></video>
+            <div class="bleed-video-bg-mask"></div>
+            <video
+              class="bleed-video-main"
+              src="assets/bleedvid.mp4"
+              autoplay
+              muted
+              loop
+              playsinline
+            ></video>
           </div>
         </div>
       </div>
