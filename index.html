@@ -402,6 +402,50 @@
         opacity: 0;
       }
 
+      .records-block {
+        padding: 11vh 8vw;
+        background: #070707;
+      }
+
+      .records-copy {
+        margin: 0 auto;
+        width: min(980px, 92vw);
+        text-align: center;
+        font-size: clamp(1.18rem, 2.2vw, 1.9rem);
+        line-height: 1.5;
+        color: rgba(244, 241, 235, 0.97);
+        background: rgba(16, 40, 31, 0.58);
+        border: 1px solid rgba(180, 214, 195, 0.24);
+        border-radius: 16px;
+        backdrop-filter: blur(4px);
+        padding: clamp(1rem, 2.4vw, 1.9rem) clamp(1.1rem, 2.8vw, 2.4rem);
+        text-shadow: 0 8px 24px rgba(0, 0, 0, 0.75);
+      }
+
+      .stacks-scroll {
+        position: relative;
+        height: 230vh;
+        background: #050505;
+      }
+
+      .stacks-sticky {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow: hidden;
+        background: #050505;
+      }
+
+      .stacks-photo {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        opacity: 0;
+      }
+
       @media (prefers-reduced-motion: reduce) {
         .video-layer,
         .photo-layer,
@@ -605,6 +649,33 @@
       </div>
     </section>
 
+    <section class="records-block">
+      <p class="records-copy">
+        More than 1,200 health records obtained and analyzed by EIA
+        investigators - as well as independent medical experts - show that
+        since 2023, doctors and nurses near the mine have treated a growing
+        flow of patients for coughing up blood and severe respiratory illnesses
+        like pneumonia and bronchitis.
+      </p>
+    </section>
+
+    <section class="stacks-scroll" id="stacksScroll">
+      <div class="stacks-sticky">
+        <img
+          class="stacks-photo"
+          id="stacksPhotoOne"
+          src="assets/ppl_stacks.jpg"
+          alt="People with stacked records"
+        />
+        <img
+          class="stacks-photo"
+          id="stacksPhotoTwo"
+          src="assets/paper_stacks.jpg"
+          alt="Stacks of paper records"
+        />
+      </div>
+    </section>
+
     <section class="after-map">
       <p>Continue with your next scrollytell section here.</p>
     </section>
@@ -638,6 +709,9 @@
       const cobaltCrushLayer = document.getElementById("cobaltCrushLayer");
       const cobaltTextOne = document.getElementById("cobaltTextOne");
       const cobaltTextTwo = document.getElementById("cobaltTextTwo");
+      const stacksScroll = document.getElementById("stacksScroll");
+      const stacksPhotoOne = document.getElementById("stacksPhotoOne");
+      const stacksPhotoTwo = document.getElementById("stacksPhotoTwo");
 
       const map = L.map("mapCanvas", {
         zoomControl: false,
@@ -921,10 +995,23 @@
         cobaltTextTwo.style.transform = `translate(-50%, calc(-50% + ${(1 - textTwoIn) * 14}px))`;
       }
 
+      function updateStacksProgress() {
+        const rect = stacksScroll.getBoundingClientRect();
+        const total = Math.max(1, rect.height - window.innerHeight);
+        const scrolled = clamp(-rect.top, 0, total);
+        const progress = scrolled / total;
+
+        const one = 1 - clamp((progress - 0.38) / 0.28, 0, 1);
+        const two = clamp((progress - 0.38) / 0.28, 0, 1);
+        stacksPhotoOne.style.opacity = String(one);
+        stacksPhotoTwo.style.opacity = String(two);
+      }
+
       updateIntroProgress();
       updateMapProgress();
       updateBleedProgress();
       updateCobaltProgress();
+      updateStacksProgress();
       window.addEventListener(
         "scroll",
         () => {
@@ -932,6 +1019,7 @@
           updateMapProgress();
           updateBleedProgress();
           updateCobaltProgress();
+          updateStacksProgress();
         },
         { passive: true }
       );
@@ -941,6 +1029,7 @@
         updateMapProgress();
         updateBleedProgress();
         updateCobaltProgress();
+        updateStacksProgress();
       });
       map.on("zoom move", updateMineOverviewRevealByZoom);
     </script>
