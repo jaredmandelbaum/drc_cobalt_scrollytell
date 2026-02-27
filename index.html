@@ -431,13 +431,13 @@
       const tenkeFungurume = [-10.6383278, 26.2913167];
       const tenkeCenter = [-10.640100188663443, 26.282213719015243];
       const tenkeCloseBounds = L.latLngBounds(
-        [-10.645936876771951, 26.27183390053247],
-        [-10.634263500554935, 26.292593537498018]
+        [-10.648600188663443, 26.267713719015243],
+        [-10.631600188663443, 26.296713719015243]
       );
       const riskCenter = [-10.634007818200445, 26.306915449385475];
       const riskBounds = L.latLngBounds(
-        [-10.640619898249427, 26.295858285276772],
-        [-10.627395738151463, 26.317972613494178]
+        [-10.643807818200445, 26.290415449385475],
+        [-10.624207818200445, 26.323415449385475]
       );
       const mineBounds = L.latLngBounds([kisanfu, tenkeFungurume]);
       let mapStage = -1;
@@ -564,12 +564,12 @@
           setMineTargets(false);
           setCopyVisible(mapCopyTwo, false);
           map.flyToBounds(tenkeCloseBounds, {
-            paddingTopLeft: [80, 90],
-            paddingBottomRight: [90, 90],
+            paddingTopLeft: [8, 8],
+            paddingBottomRight: [8, 8],
             animate: true,
-            duration: 3.6,
+            duration: 2.6,
             easeLinearity: 0.15,
-            maxZoom: 14.6,
+            maxZoom: 16.5,
           });
           return;
         }
@@ -583,9 +583,9 @@
         setCopyVisible(mapCopyTwo, false);
         map.flyToBounds(riskBounds, {
           animate: true,
-          duration: 2.6,
+          duration: 2.2,
           easeLinearity: 0.15,
-          maxZoom: 14.2,
+          maxZoom: 15.8,
         });
       }
 
