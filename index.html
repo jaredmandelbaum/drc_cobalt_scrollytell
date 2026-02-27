@@ -381,6 +381,62 @@
         box-shadow: 0 24px 56px rgba(0, 0, 0, 0.62);
       }
 
+      .cobalt-scroll {
+        position: relative;
+        height: 260vh;
+        background: #050505;
+      }
+
+      .cobalt-sticky {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow: hidden;
+        background: #050505;
+      }
+
+      .cobalt-layer {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+      }
+
+      .cobalt-layer video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .cobalt-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 4;
+        display: grid;
+        place-items: center;
+        padding: 8vh 6vw;
+        pointer-events: none;
+      }
+
+      .cobalt-copy {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, calc(-50% + 16px));
+        margin: 0;
+        width: min(1100px, 88vw);
+        text-align: center;
+        font-size: clamp(1.2rem, 2.15vw, 2rem);
+        line-height: 1.46;
+        color: rgba(246, 246, 246, 0.96);
+        background: rgba(44, 44, 44, 0.48);
+        border: 1px solid rgba(230, 230, 230, 0.22);
+        border-radius: 16px;
+        backdrop-filter: blur(4px);
+        padding: clamp(0.95rem, 2.3vw, 1.8rem) clamp(1rem, 2.6vw, 2rem);
+        text-shadow: 0 8px 24px rgba(0, 0, 0, 0.75);
+        opacity: 0;
+      }
+
       @media (prefers-reduced-motion: reduce) {
         .video-layer,
         .photo-layer,
@@ -583,6 +639,29 @@
       </div>
     </section>
 
+    <section class="cobalt-scroll" id="cobaltScroll">
+      <div class="cobalt-sticky">
+        <div class="cobalt-layer" id="cobaltPrevLayer">
+          <video src="assets/bleedvid.mp4" autoplay muted loop playsinline></video>
+        </div>
+        <div class="cobalt-layer" id="cobaltCrushLayer">
+          <video src="assets/cobalt_crush.mov" autoplay muted loop playsinline></video>
+        </div>
+        <div class="cobalt-overlay">
+          <p class="cobalt-copy" id="cobaltTextOne">
+            EIA’s conclusions differ from TFM’s public statement.
+          </p>
+          <p class="cobalt-copy" id="cobaltTextTwo">
+            According to EIA’s findings, the expansion of CMOC’s processing
+            capacity at the Tenke Fungurume mine – and in particular the 30k
+            plant – is at the heart of the public health crisis that has
+            allegedly harmed nearby communities and the workers who labor in
+            the facility.
+          </p>
+        </div>
+      </div>
+    </section>
+
     <section class="after-map">
       <p>Continue with your next scrollytell section here.</p>
     </section>
@@ -613,6 +692,11 @@
       const bleedVideoWrap = document.getElementById("bleedVideoWrap");
       const bleedTextOne = document.getElementById("bleedTextOne");
       const bleedTextTwo = document.getElementById("bleedTextTwo");
+      const cobaltScroll = document.getElementById("cobaltScroll");
+      const cobaltPrevLayer = document.getElementById("cobaltPrevLayer");
+      const cobaltCrushLayer = document.getElementById("cobaltCrushLayer");
+      const cobaltTextOne = document.getElementById("cobaltTextOne");
+      const cobaltTextTwo = document.getElementById("cobaltTextTwo");
 
       const map = L.map("mapCanvas", {
         zoomControl: false,
@@ -877,15 +961,40 @@
         bleedTextTwo.style.opacity = String(textTwo);
       }
 
+      function updateCobaltProgress() {
+        const rect = cobaltScroll.getBoundingClientRect();
+        const total = Math.max(1, rect.height - window.innerHeight);
+        const scrolled = clamp(-rect.top, 0, total);
+        const progress = scrolled / total;
+
+        const videoBlend = clamp((progress - 0.08) / 0.24, 0, 1);
+        cobaltPrevLayer.style.opacity = String(1 - videoBlend);
+        cobaltCrushLayer.style.opacity = String(videoBlend);
+
+        const textOneIn = clamp((progress - 0.30) / 0.12, 0, 1);
+        const textOneOut = clamp((progress - 0.56) / 0.14, 0, 1);
+        const one = textOneIn * (1 - textOneOut);
+        cobaltTextOne.style.opacity = String(one);
+        cobaltTextOne.style.transform = `translate(-50%, calc(-50% + ${(1 - textOneIn) * 14}px))`;
+
+        const textTwoIn = clamp((progress - 0.62) / 0.14, 0, 1);
+        const textTwoOut = clamp((progress - 0.95) / 0.08, 0, 1);
+        const two = textTwoIn * (1 - textTwoOut);
+        cobaltTextTwo.style.opacity = String(two);
+        cobaltTextTwo.style.transform = `translate(-50%, calc(-50% + ${(1 - textTwoIn) * 14}px))`;
+      }
+
       updateIntroProgress();
       updateMapProgress();
       updateBleedProgress();
+      updateCobaltProgress();
       window.addEventListener(
         "scroll",
         () => {
           updateIntroProgress();
           updateMapProgress();
           updateBleedProgress();
+          updateCobaltProgress();
         },
         { passive: true }
       );
@@ -894,6 +1003,7 @@
         map.invalidateSize();
         updateMapProgress();
         updateBleedProgress();
+        updateCobaltProgress();
       });
       map.on("zoom move", updateMineOverviewRevealByZoom);
     </script>
