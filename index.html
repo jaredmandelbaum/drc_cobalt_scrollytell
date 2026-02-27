@@ -355,6 +355,7 @@
         object-position: center;
         background: #060606;
         opacity: 0;
+        z-index: 2;
       }
 
       .cobalt-scroll {
@@ -642,17 +643,17 @@
               src="assets/bleed2.jpg"
               alt="Community impact photo 2"
             />
-            <video
-              class="bleed-video"
-              id="bleedVideo"
-              src="assets/bleedvid.mp4"
-              autoplay
-              muted
-              loop
-              playsinline
-            ></video>
           </div>
         </div>
+        <video
+          class="bleed-video"
+          id="bleedVideo"
+          src="assets/bleedvid.mp4"
+          autoplay
+          muted
+          loop
+          playsinline
+        ></video>
       </div>
     </section>
 
@@ -1012,7 +1013,11 @@
         const scrolled = clamp(-rect.top, 0, total);
         const progress = scrolled / total;
 
-        const cobaltLayerIn = clamp(progress / 0.16, 0, 1);
+        const cobaltLayerIn = clamp(
+          (window.innerHeight - rect.top) / window.innerHeight,
+          0,
+          1
+        );
         cobaltCrushLayer.style.opacity = String(cobaltLayerIn);
 
         const textOneIn = clamp((progress - 0.30) / 0.12, 0, 1);
@@ -1038,9 +1043,8 @@
         const photoOneOut = clamp((progress - 0.66) / 0.18, 0, 1);
         const one = photoOneIn * (1 - photoOneOut);
         const two = clamp((progress - 0.66) / 0.18, 0, 1);
-        const copyIn = clamp((progress - 0.30) / 0.16, 0, 1);
         const copyOut = clamp((progress - 0.62) / 0.18, 0, 1);
-        const copy = copyIn * (1 - copyOut);
+        const copy = photoOneIn * (1 - copyOut);
 
         stacksPhotoOne.style.opacity = String(one);
         stacksPhotoTwo.style.opacity = String(two);
