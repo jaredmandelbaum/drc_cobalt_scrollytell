@@ -403,7 +403,7 @@
       }
 
       .records-block {
-        padding: 16vh 8vw;
+        padding: 24vh 8vw;
         background: #070707;
       }
 
@@ -427,6 +427,7 @@
         position: relative;
         height: 230vh;
         background: #050505;
+        margin-top: -14vh;
       }
 
       .stacks-sticky {
@@ -435,6 +436,25 @@
         height: 100vh;
         overflow: hidden;
         background: #050505;
+      }
+
+      .stacks-sticky::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        pointer-events: none;
+        background: linear-gradient(
+          to bottom,
+          rgba(6, 6, 6, 0.92) 0%,
+          rgba(6, 6, 6, 0.68) 14%,
+          rgba(6, 6, 6, 0.26) 32%,
+          rgba(6, 6, 6, 0) 48%,
+          rgba(6, 6, 6, 0) 68%,
+          rgba(6, 6, 6, 0.24) 84%,
+          rgba(6, 6, 6, 0.58) 94%,
+          rgba(6, 6, 6, 0.82) 100%
+        );
       }
 
       .stacks-photo {
