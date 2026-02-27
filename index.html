@@ -427,7 +427,6 @@
         position: relative;
         height: 230vh;
         background: #050505;
-        margin-top: -14vh;
       }
 
       .stacks-sticky {
@@ -436,25 +435,6 @@
         height: 100vh;
         overflow: hidden;
         background: #050505;
-      }
-
-      .stacks-sticky::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        z-index: 3;
-        pointer-events: none;
-        background: linear-gradient(
-          to bottom,
-          rgba(6, 6, 6, 0.92) 0%,
-          rgba(6, 6, 6, 0.68) 14%,
-          rgba(6, 6, 6, 0.26) 32%,
-          rgba(6, 6, 6, 0) 48%,
-          rgba(6, 6, 6, 0) 68%,
-          rgba(6, 6, 6, 0.24) 84%,
-          rgba(6, 6, 6, 0.58) 94%,
-          rgba(6, 6, 6, 0.82) 100%
-        );
       }
 
       .stacks-photo {
@@ -671,7 +651,7 @@
       </div>
     </section>
 
-    <section class="records-block">
+    <section class="records-block" id="recordsBlock">
       <p class="records-copy">
         More than 1,200 health records obtained and analyzed by EIA
         investigators - as well as independent medical experts - show that
@@ -731,6 +711,8 @@
       const cobaltCrushLayer = document.getElementById("cobaltCrushLayer");
       const cobaltTextOne = document.getElementById("cobaltTextOne");
       const cobaltTextTwo = document.getElementById("cobaltTextTwo");
+      const recordsBlock = document.getElementById("recordsBlock");
+      const recordsCopy = recordsBlock.querySelector(".records-copy");
       const stacksScroll = document.getElementById("stacksScroll");
       const stacksPhotoOne = document.getElementById("stacksPhotoOne");
       const stacksPhotoTwo = document.getElementById("stacksPhotoTwo");
@@ -1017,6 +999,14 @@
         cobaltTextTwo.style.transform = `translate(-50%, calc(-50% + ${(1 - textTwoIn) * 14}px))`;
       }
 
+      function updateRecordsProgress() {
+        const rect = recordsBlock.getBoundingClientRect();
+        const fadeStart = window.innerHeight * 1.08;
+        const fadeEnd = window.innerHeight * 0.5;
+        const opacity = clamp((rect.bottom - fadeEnd) / (fadeStart - fadeEnd), 0, 1);
+        recordsCopy.style.opacity = String(opacity);
+      }
+
       function updateStacksProgress() {
         const rect = stacksScroll.getBoundingClientRect();
         const total = Math.max(1, rect.height - window.innerHeight);
@@ -1033,6 +1023,7 @@
       updateMapProgress();
       updateBleedProgress();
       updateCobaltProgress();
+      updateRecordsProgress();
       updateStacksProgress();
       window.addEventListener(
         "scroll",
@@ -1041,6 +1032,7 @@
           updateMapProgress();
           updateBleedProgress();
           updateCobaltProgress();
+          updateRecordsProgress();
           updateStacksProgress();
         },
         { passive: true }
@@ -1051,6 +1043,7 @@
         updateMapProgress();
         updateBleedProgress();
         updateCobaltProgress();
+        updateRecordsProgress();
         updateStacksProgress();
       });
       map.on("zoom move", updateMineOverviewRevealByZoom);
