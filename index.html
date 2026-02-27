@@ -265,6 +265,91 @@
         color: rgba(242, 238, 233, 0.72);
       }
 
+      .bleed-scroll {
+        position: relative;
+        height: 360vh;
+        background: #060606;
+      }
+
+      .bleed-sticky {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow: hidden;
+        background: #060606;
+      }
+
+      .bleed-layout {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+      }
+
+      .bleed-text {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10vh 5vw 10vh 8vw;
+      }
+
+      .bleed-text p {
+        margin: 0;
+        max-width: 34ch;
+        font-size: clamp(1.2rem, 2.2vw, 1.9rem);
+        line-height: 1.52;
+        color: rgba(245, 241, 235, 0.96);
+        text-shadow: 0 10px 28px rgba(0, 0, 0, 0.82);
+      }
+
+      .bleed-visuals {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .bleed-photo {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0;
+      }
+
+      .bleed-video-wrap {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+      }
+
+      .bleed-video-bg {
+        position: absolute;
+        inset: -8%;
+        width: 116%;
+        height: 116%;
+        object-fit: cover;
+        filter: blur(22px) brightness(0.72);
+        transform: scale(1.12);
+      }
+
+      .bleed-video-bg-mask {
+        position: absolute;
+        inset: 0;
+        background: rgba(5, 5, 5, 0.36);
+      }
+
+      .bleed-video-main {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        height: min(84vh, 980px);
+        width: auto;
+        transform: translate(-50%, -50%);
+        border-radius: 14px;
+        box-shadow: 0 24px 56px rgba(0, 0, 0, 0.62);
+      }
+
       @media (prefers-reduced-motion: reduce) {
         .video-layer,
         .photo-layer,
@@ -289,6 +374,29 @@
           top: 66%;
           max-width: 90vw;
           text-align: center;
+        }
+
+        .bleed-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .bleed-text {
+          position: absolute;
+          inset: auto 0 0 0;
+          z-index: 3;
+          padding: 4vh 7vw 5vh;
+          background: linear-gradient(
+            to top,
+            rgba(6, 6, 6, 0.78) 0%,
+            rgba(6, 6, 6, 0.32) 62%,
+            rgba(6, 6, 6, 0) 100%
+          );
+        }
+
+        .bleed-text p {
+          max-width: 90vw;
+          font-size: clamp(1.05rem, 4vw, 1.35rem);
+          text-align: left;
         }
       }
     </style>
@@ -374,6 +482,64 @@
       </div>
     </section>
 
+    <section class="bleed-scroll" id="bleedScroll">
+      <div class="bleed-sticky">
+        <div class="bleed-layout">
+          <div class="bleed-text">
+            <p>
+              In 2023 and 2024, communities and local civil society groups
+              sounded the alarm about severe health issues, including severe
+              nosebleeds, coughing up blood, and maternal issues, including
+              stillbirth, that they attributed to the operations of CMOC’s new
+              processing plant. In its public statements, CMOC, via its
+              subsidiary Tenke Fungurume Mining (TFM), denied the allegations
+              of environmental pollution, its adverse impact on the population,
+              and any connection to its activities.
+            </p>
+          </div>
+          <div class="bleed-visuals">
+            <img
+              class="bleed-photo"
+              id="bleedPhoto1"
+              src="assets/bleed1.jpg"
+              alt="Community impact photo 1"
+            />
+            <img
+              class="bleed-photo"
+              id="bleedPhoto2"
+              src="assets/bleed2.jpg"
+              alt="Community impact photo 2"
+            />
+            <img
+              class="bleed-photo"
+              id="bleedPhoto3"
+              src="assets/bleed3.jpg"
+              alt="Community impact photo 3"
+            />
+            <div class="bleed-video-wrap" id="bleedVideoWrap">
+              <video
+                class="bleed-video-bg"
+                src="assets/bleedvid.mp4"
+                autoplay
+                muted
+                loop
+                playsinline
+              ></video>
+              <div class="bleed-video-bg-mask"></div>
+              <video
+                class="bleed-video-main"
+                src="assets/bleedvid.mp4"
+                autoplay
+                muted
+                loop
+                playsinline
+              ></video>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="after-map">
       <p>Continue with your next scrollytell section here.</p>
     </section>
@@ -397,6 +563,11 @@
       const mapCopyThree = document.getElementById("mapCopyThree");
       const mapCopyFour = document.getElementById("mapCopyFour");
       const mapCopyFive = document.getElementById("mapCopyFive");
+      const bleedScroll = document.getElementById("bleedScroll");
+      const bleedPhoto1 = document.getElementById("bleedPhoto1");
+      const bleedPhoto2 = document.getElementById("bleedPhoto2");
+      const bleedPhoto3 = document.getElementById("bleedPhoto3");
+      const bleedVideoWrap = document.getElementById("bleedVideoWrap");
 
       const map = L.map("mapCanvas", {
         zoomControl: false,
@@ -630,13 +801,36 @@
         setCopyVisible(mapCopyFive, activeStage === 4);
       }
 
+      function updateBleedProgress() {
+        const rect = bleedScroll.getBoundingClientRect();
+        const total = Math.max(1, rect.height - window.innerHeight);
+        const scrolled = clamp(-rect.top, 0, total);
+        const progress = scrolled / total;
+
+        const p1 = 1 - clamp((progress - 0.22) / 0.16, 0, 1);
+        const p2In = clamp((progress - 0.18) / 0.16, 0, 1);
+        const p2Out = clamp((progress - 0.50) / 0.16, 0, 1);
+        const p2 = p2In * (1 - p2Out);
+        const p3In = clamp((progress - 0.46) / 0.18, 0, 1);
+        const p3Out = clamp((progress - 0.78) / 0.14, 0, 1);
+        const p3 = p3In * (1 - p3Out);
+        const videoIn = clamp((progress - 0.78) / 0.18, 0, 1);
+
+        bleedPhoto1.style.opacity = String(p1);
+        bleedPhoto2.style.opacity = String(p2);
+        bleedPhoto3.style.opacity = String(p3);
+        bleedVideoWrap.style.opacity = String(videoIn);
+      }
+
       updateIntroProgress();
       updateMapProgress();
+      updateBleedProgress();
       window.addEventListener(
         "scroll",
         () => {
           updateIntroProgress();
           updateMapProgress();
+          updateBleedProgress();
         },
         { passive: true }
       );
@@ -644,6 +838,7 @@
         updateIntroProgress();
         map.invalidateSize();
         updateMapProgress();
+        updateBleedProgress();
       });
       map.on("zoom move", updateMineOverviewRevealByZoom);
     </script>
