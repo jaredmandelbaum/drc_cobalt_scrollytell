@@ -658,15 +658,6 @@
 
     <section class="stacks-scroll" id="stacksScroll">
       <div class="stacks-sticky">
-        <video
-          class="stacks-photo"
-          id="stacksVideo"
-          src="assets/cobalt_crush.mov"
-          autoplay
-          muted
-          loop
-          playsinline
-        ></video>
         <img
           class="stacks-photo"
           id="stacksPhotoOne"
@@ -725,7 +716,6 @@
       const cobaltTextOne = document.getElementById("cobaltTextOne");
       const cobaltTextTwo = document.getElementById("cobaltTextTwo");
       const stacksScroll = document.getElementById("stacksScroll");
-      const stacksVideo = document.getElementById("stacksVideo");
       const stacksPhotoOne = document.getElementById("stacksPhotoOne");
       const stacksPhotoTwo = document.getElementById("stacksPhotoTwo");
       const stacksCopy = document.getElementById("stacksCopy");
@@ -1018,16 +1008,14 @@
         const scrolled = clamp(-rect.top, 0, total);
         const progress = scrolled / total;
 
-        const video = 1 - clamp((progress - 0.16) / 0.2, 0, 1);
-        const photoOneIn = clamp((progress - 0.1) / 0.2, 0, 1);
-        const photoOneOut = clamp((progress - 0.6) / 0.2, 0, 1);
+        const photoOneIn = clamp((progress - 0.25) / 0.18, 0, 1);
+        const photoOneOut = clamp((progress - 0.66) / 0.18, 0, 1);
         const one = photoOneIn * (1 - photoOneOut);
-        const two = clamp((progress - 0.6) / 0.2, 0, 1);
-        const copyIn = clamp((progress - 0.24) / 0.16, 0, 1);
-        const copyOut = clamp((progress - 0.58) / 0.18, 0, 1);
+        const two = clamp((progress - 0.66) / 0.18, 0, 1);
+        const copyIn = clamp((progress - 0.30) / 0.16, 0, 1);
+        const copyOut = clamp((progress - 0.62) / 0.18, 0, 1);
         const copy = copyIn * (1 - copyOut);
 
-        stacksVideo.style.opacity = String(video);
         stacksPhotoOne.style.opacity = String(one);
         stacksPhotoTwo.style.opacity = String(two);
         stacksCopy.style.opacity = String(copy);
