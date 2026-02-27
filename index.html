@@ -288,19 +288,31 @@
       }
 
       .bleed-text {
+        position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 10vh 5vw 10vh 8vw;
       }
 
-      .bleed-text p {
-        margin: 0;
+      .bleed-text-inner {
+        position: relative;
+        width: 100%;
         max-width: 34ch;
+        min-height: 48vh;
+      }
+
+      .bleed-copy {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        margin: 0;
         font-size: clamp(1.2rem, 2.2vw, 1.9rem);
         line-height: 1.52;
         color: rgba(245, 241, 235, 0.96);
         text-shadow: 0 10px 28px rgba(0, 0, 0, 0.82);
+        opacity: 0;
       }
 
       .bleed-visuals {
@@ -486,16 +498,21 @@
       <div class="bleed-sticky">
         <div class="bleed-layout">
           <div class="bleed-text">
-            <p>
-              In 2023 and 2024, communities and local civil society groups
-              sounded the alarm about severe health issues, including severe
-              nosebleeds, coughing up blood, and maternal issues, including
-              stillbirth, that they attributed to the operations of CMOC’s new
-              processing plant. In its public statements, CMOC, via its
-              subsidiary Tenke Fungurume Mining (TFM), denied the allegations
-              of environmental pollution, its adverse impact on the population,
-              and any connection to its activities.
-            </p>
+            <div class="bleed-text-inner">
+              <p class="bleed-copy" id="bleedTextOne">
+                In 2023 and 2024, communities and local civil society groups
+                sounded the alarm about severe health issues, including severe
+                nosebleeds, coughing up blood, and maternal issues, including
+                stillbirth, that they attributed to the operations of CMOC’s new
+                processing plant.
+              </p>
+              <p class="bleed-copy" id="bleedTextTwo">
+                In its public statements, CMOC, via its subsidiary Tenke
+                Fungurume Mining (TFM), denied the allegations of environmental
+                pollution, its adverse impact on the population, and any
+                connection to its activities.
+              </p>
+            </div>
           </div>
           <div class="bleed-visuals">
             <img
@@ -568,6 +585,8 @@
       const bleedPhoto2 = document.getElementById("bleedPhoto2");
       const bleedPhoto3 = document.getElementById("bleedPhoto3");
       const bleedVideoWrap = document.getElementById("bleedVideoWrap");
+      const bleedTextOne = document.getElementById("bleedTextOne");
+      const bleedTextTwo = document.getElementById("bleedTextTwo");
 
       const map = L.map("mapCanvas", {
         zoomControl: false,
@@ -815,11 +834,19 @@
         const p3Out = clamp((progress - 0.78) / 0.14, 0, 1);
         const p3 = p3In * (1 - p3Out);
         const videoIn = clamp((progress - 0.78) / 0.18, 0, 1);
+        const textOneIn = clamp((progress - 0.02) / 0.08, 0, 1);
+        const textOneOut = clamp((progress - 0.38) / 0.12, 0, 1);
+        const textOne = textOneIn * (1 - textOneOut) * (1 - videoIn);
+        const textTwoIn = clamp((progress - 0.42) / 0.16, 0, 1);
+        const textTwoOut = clamp((progress - 0.74) / 0.14, 0, 1);
+        const textTwo = textTwoIn * (1 - textTwoOut) * (1 - videoIn);
 
         bleedPhoto1.style.opacity = String(p1);
         bleedPhoto2.style.opacity = String(p2);
         bleedPhoto3.style.opacity = String(p3);
         bleedVideoWrap.style.opacity = String(videoIn);
+        bleedTextOne.style.opacity = String(textOne);
+        bleedTextTwo.style.opacity = String(textTwo);
       }
 
       updateIntroProgress();
