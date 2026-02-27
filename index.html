@@ -282,13 +282,15 @@
       .bleed-layout {
         position: absolute;
         inset: 0;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0;
       }
 
       .bleed-text {
-        position: relative;
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: min(46vw, 780px);
+        z-index: 3;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -316,7 +318,8 @@
       }
 
       .bleed-visuals {
-        position: relative;
+        position: absolute;
+        inset: 0;
         overflow: hidden;
       }
 
@@ -325,7 +328,9 @@
         inset: 0;
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: contain;
+        object-position: 68% 50%;
+        background: #070707;
         opacity: 0;
       }
 
@@ -362,6 +367,23 @@
         box-shadow: 0 24px 56px rgba(0, 0, 0, 0.62);
       }
 
+      .bleed-left-shade {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: min(52vw, 860px);
+        background: linear-gradient(
+          to right,
+          rgba(5, 5, 5, 0.58) 0%,
+          rgba(5, 5, 5, 0.42) 34%,
+          rgba(5, 5, 5, 0.12) 76%,
+          rgba(5, 5, 5, 0) 100%
+        );
+        z-index: 2;
+        pointer-events: none;
+      }
+
       @media (prefers-reduced-motion: reduce) {
         .video-layer,
         .photo-layer,
@@ -389,11 +411,13 @@
         }
 
         .bleed-layout {
-          grid-template-columns: 1fr;
+          position: absolute;
+          inset: 0;
         }
 
         .bleed-text {
           position: absolute;
+          width: 100%;
           inset: auto 0 0 0;
           z-index: 3;
           padding: 4vh 7vw 5vh;
@@ -409,6 +433,21 @@
           max-width: 90vw;
           font-size: clamp(1.05rem, 4vw, 1.35rem);
           text-align: left;
+        }
+
+        .bleed-photo {
+          object-fit: cover;
+          object-position: center;
+        }
+
+        .bleed-left-shade {
+          width: 100%;
+          background: linear-gradient(
+            to top,
+            rgba(5, 5, 5, 0.66) 0%,
+            rgba(5, 5, 5, 0.12) 52%,
+            rgba(5, 5, 5, 0) 100%
+          );
         }
       }
     </style>
@@ -553,6 +592,7 @@
               ></video>
             </div>
           </div>
+          <div class="bleed-left-shade"></div>
         </div>
       </div>
     </section>
@@ -826,19 +866,21 @@
         const scrolled = clamp(-rect.top, 0, total);
         const progress = scrolled / total;
 
-        const p1 = 1 - clamp((progress - 0.22) / 0.16, 0, 1);
-        const p2In = clamp((progress - 0.18) / 0.16, 0, 1);
-        const p2Out = clamp((progress - 0.50) / 0.16, 0, 1);
+        const p1In = clamp((progress - 0.05) / 0.14, 0, 1);
+        const p1Out = clamp((progress - 0.30) / 0.16, 0, 1);
+        const p1 = p1In * (1 - p1Out);
+        const p2In = clamp((progress - 0.26) / 0.16, 0, 1);
+        const p2Out = clamp((progress - 0.56) / 0.18, 0, 1);
         const p2 = p2In * (1 - p2Out);
-        const p3In = clamp((progress - 0.46) / 0.18, 0, 1);
-        const p3Out = clamp((progress - 0.78) / 0.14, 0, 1);
+        const p3In = clamp((progress - 0.52) / 0.2, 0, 1);
+        const p3Out = clamp((progress - 0.82) / 0.12, 0, 1);
         const p3 = p3In * (1 - p3Out);
-        const videoIn = clamp((progress - 0.78) / 0.18, 0, 1);
-        const textOneIn = clamp((progress - 0.02) / 0.08, 0, 1);
-        const textOneOut = clamp((progress - 0.38) / 0.12, 0, 1);
+        const videoIn = clamp((progress - 0.82) / 0.14, 0, 1);
+        const textOneIn = clamp((progress - 0.06) / 0.13, 0, 1);
+        const textOneOut = clamp((progress - 0.40) / 0.12, 0, 1);
         const textOne = textOneIn * (1 - textOneOut) * (1 - videoIn);
-        const textTwoIn = clamp((progress - 0.42) / 0.16, 0, 1);
-        const textTwoOut = clamp((progress - 0.74) / 0.14, 0, 1);
+        const textTwoIn = clamp((progress - 0.46) / 0.14, 0, 1);
+        const textTwoOut = clamp((progress - 0.78) / 0.12, 0, 1);
         const textTwo = textTwoIn * (1 - textTwoOut) * (1 - videoIn);
 
         bleedPhoto1.style.opacity = String(p1);
