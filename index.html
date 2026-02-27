@@ -402,27 +402,6 @@
         opacity: 0;
       }
 
-      .records-block {
-        padding: 24vh 8vw;
-        background: #070707;
-      }
-
-      .records-copy {
-        margin: 0 auto;
-        width: min(980px, 92vw);
-        text-align: center;
-        font-size: clamp(1.18rem, 2.2vw, 1.9rem);
-        line-height: 1.5;
-        color: rgba(244, 241, 235, 0.97);
-        background: rgba(14, 52, 38, 0.72);
-        border: 1px solid rgba(184, 224, 201, 0.38);
-        border-radius: 16px;
-        backdrop-filter: blur(4px);
-        padding: clamp(1rem, 2.4vw, 1.9rem) clamp(1.1rem, 2.8vw, 2.4rem);
-        text-shadow: 0 8px 24px rgba(0, 0, 0, 0.75);
-        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32);
-      }
-
       .stacks-scroll {
         position: relative;
         height: 230vh;
@@ -445,6 +424,32 @@
         object-fit: contain;
         object-position: center;
         background: #050505;
+        opacity: 0;
+      }
+
+      .stacks-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        display: grid;
+        place-items: center;
+        padding: 8vh 6vw;
+        pointer-events: none;
+      }
+
+      .stacks-copy {
+        margin: 0;
+        width: min(980px, 92vw);
+        text-align: center;
+        font-size: clamp(1.18rem, 2.2vw, 1.9rem);
+        line-height: 1.5;
+        color: rgba(244, 241, 235, 0.97);
+        background: rgba(44, 44, 44, 0.48);
+        border: 1px solid rgba(230, 230, 230, 0.22);
+        border-radius: 16px;
+        backdrop-filter: blur(4px);
+        padding: clamp(1rem, 2.4vw, 1.9rem) clamp(1.1rem, 2.8vw, 2.4rem);
+        text-shadow: 0 8px 24px rgba(0, 0, 0, 0.75);
         opacity: 0;
       }
 
@@ -651,18 +656,17 @@
       </div>
     </section>
 
-    <section class="records-block" id="recordsBlock">
-      <p class="records-copy">
-        More than 1,200 health records obtained and analyzed by EIA
-        investigators - as well as independent medical experts - show that
-        since 2023, doctors and nurses near the mine have treated a growing
-        flow of patients for coughing up blood and severe respiratory illnesses
-        like pneumonia and bronchitis.
-      </p>
-    </section>
-
     <section class="stacks-scroll" id="stacksScroll">
       <div class="stacks-sticky">
+        <video
+          class="stacks-photo"
+          id="stacksVideo"
+          src="assets/cobalt_crush.mov"
+          autoplay
+          muted
+          loop
+          playsinline
+        ></video>
         <img
           class="stacks-photo"
           id="stacksPhotoOne"
@@ -675,6 +679,15 @@
           src="assets/paper_stacks.jpg"
           alt="Stacks of paper records"
         />
+        <div class="stacks-overlay">
+          <p class="stacks-copy" id="stacksCopy">
+            More than 1,200 health records obtained and analyzed by EIA
+            investigators - as well as independent medical experts - show that
+            since 2023, doctors and nurses near the mine have treated a
+            growing flow of patients for coughing up blood and severe
+            respiratory illnesses like pneumonia and bronchitis.
+          </p>
+        </div>
       </div>
     </section>
 
@@ -711,11 +724,11 @@
       const cobaltCrushLayer = document.getElementById("cobaltCrushLayer");
       const cobaltTextOne = document.getElementById("cobaltTextOne");
       const cobaltTextTwo = document.getElementById("cobaltTextTwo");
-      const recordsBlock = document.getElementById("recordsBlock");
-      const recordsCopy = recordsBlock.querySelector(".records-copy");
       const stacksScroll = document.getElementById("stacksScroll");
+      const stacksVideo = document.getElementById("stacksVideo");
       const stacksPhotoOne = document.getElementById("stacksPhotoOne");
       const stacksPhotoTwo = document.getElementById("stacksPhotoTwo");
+      const stacksCopy = document.getElementById("stacksCopy");
 
       const map = L.map("mapCanvas", {
         zoomControl: false,
@@ -999,31 +1012,31 @@
         cobaltTextTwo.style.transform = `translate(-50%, calc(-50% + ${(1 - textTwoIn) * 14}px))`;
       }
 
-      function updateRecordsProgress() {
-        const rect = recordsBlock.getBoundingClientRect();
-        const fadeStart = window.innerHeight * 1.08;
-        const fadeEnd = window.innerHeight * 0.5;
-        const opacity = clamp((rect.bottom - fadeEnd) / (fadeStart - fadeEnd), 0, 1);
-        recordsCopy.style.opacity = String(opacity);
-      }
-
       function updateStacksProgress() {
         const rect = stacksScroll.getBoundingClientRect();
         const total = Math.max(1, rect.height - window.innerHeight);
         const scrolled = clamp(-rect.top, 0, total);
         const progress = scrolled / total;
 
-        const one = 1 - clamp((progress - 0.38) / 0.28, 0, 1);
-        const two = clamp((progress - 0.38) / 0.28, 0, 1);
+        const video = 1 - clamp((progress - 0.16) / 0.2, 0, 1);
+        const photoOneIn = clamp((progress - 0.1) / 0.2, 0, 1);
+        const photoOneOut = clamp((progress - 0.6) / 0.2, 0, 1);
+        const one = photoOneIn * (1 - photoOneOut);
+        const two = clamp((progress - 0.6) / 0.2, 0, 1);
+        const copyIn = clamp((progress - 0.24) / 0.16, 0, 1);
+        const copyOut = clamp((progress - 0.58) / 0.18, 0, 1);
+        const copy = copyIn * (1 - copyOut);
+
+        stacksVideo.style.opacity = String(video);
         stacksPhotoOne.style.opacity = String(one);
         stacksPhotoTwo.style.opacity = String(two);
+        stacksCopy.style.opacity = String(copy);
       }
 
       updateIntroProgress();
       updateMapProgress();
       updateBleedProgress();
       updateCobaltProgress();
-      updateRecordsProgress();
       updateStacksProgress();
       window.addEventListener(
         "scroll",
@@ -1032,7 +1045,6 @@
           updateMapProgress();
           updateBleedProgress();
           updateCobaltProgress();
-          updateRecordsProgress();
           updateStacksProgress();
         },
         { passive: true }
@@ -1043,7 +1055,6 @@
         updateMapProgress();
         updateBleedProgress();
         updateCobaltProgress();
-        updateRecordsProgress();
         updateStacksProgress();
       });
       map.on("zoom move", updateMineOverviewRevealByZoom);
