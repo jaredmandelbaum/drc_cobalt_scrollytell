@@ -502,21 +502,6 @@
         setMineTargets(revealProgress > 0.02);
       }
 
-      function isCameraNearBounds(bounds, options = {}) {
-        const {
-          padding = L.point(0, 0),
-          maxZoom = 18,
-          zoomTolerance = 0.22,
-          centerToleranceMeters = 900,
-        } = options;
-        const targetZoom = Math.min(maxZoom, map.getBoundsZoom(bounds, false, padding));
-        const zoomReady = map.getZoom() >= targetZoom - zoomTolerance;
-        const targetCenter = bounds.getCenter();
-        const centerReady =
-          map.distance(map.getCenter(), targetCenter) <= centerToleranceMeters;
-        return zoomReady && centerReady;
-      }
-
       function updateIntroProgress() {
         const rect = intro.getBoundingClientRect();
         const total = Math.max(1, rect.height - window.innerHeight);
@@ -640,22 +625,9 @@
         }
 
         updateMineOverviewRevealByZoom();
-        const tenkeCameraReady = isCameraNearBounds(tenkeCloseBounds, {
-          padding: L.point(180, 180),
-          maxZoom: 14.6,
-          zoomTolerance: 0.2,
-          centerToleranceMeters: 700,
-        });
-        const riskCameraReady = isCameraNearBounds(riskBounds, {
-          padding: L.point(0, 0),
-          maxZoom: 14.2,
-          zoomTolerance: 0.2,
-          centerToleranceMeters: 650,
-        });
-
-        setCopyVisible(mapCopyThree, activeStage === 2 && tenkeCameraReady);
-        setCopyVisible(mapCopyFour, activeStage === 3 && tenkeCameraReady);
-        setCopyVisible(mapCopyFive, activeStage === 4 && riskCameraReady);
+        setCopyVisible(mapCopyThree, activeStage === 2);
+        setCopyVisible(mapCopyFour, activeStage === 3);
+        setCopyVisible(mapCopyFive, activeStage === 4);
       }
 
       updateIntroProgress();
@@ -673,7 +645,7 @@
         map.invalidateSize();
         updateMapProgress();
       });
-      map.on("zoom move moveend", updateMapProgress);
+      map.on("zoom move", updateMineOverviewRevealByZoom);
     </script>
   </body>
 </html>
